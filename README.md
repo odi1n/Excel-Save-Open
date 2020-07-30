@@ -1,4 +1,4 @@
-# Excel - save, open file
+# Excel - save, open file .xlsx
 
 Пример сохранения и открытия файла .xlsx на двух библиотеках
 
