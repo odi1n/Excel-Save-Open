@@ -3,15 +3,17 @@
 Пример сохранения/открытия файла .xlsx на нескольких библиотеках.
 
 ## EPPLus
-* [Сохранение файла](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L192)
-* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L181), [class импорт excel в list](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L214)
+* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L165), [class импорт excel в list](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L199)
+* [Сохранение файла](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L177)
 
 ## LinqToExcel
-* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/d7499043fd6225d0752b5d91bdf0c29261b4589a/Test%20Excel/Program.cs#L79)
+* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L54)
 
 ## ClosedXML.Excel
-* [Сохранение файла](https://github.com/odi1n/Excel-Save-Open/blob/d7499043fd6225d0752b5d91bdf0c29261b4589a/Test%20Excel/Program.cs#L157)
-* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/d7499043fd6225d0752b5d91bdf0c29261b4589a/Test%20Excel/Program.cs#L101)
+* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L70)
+* [Открытие файла 2](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L95)
+* [Сохранение файла](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L120)
+* [Сохранение файла 2](https://github.com/odi1n/Excel-Save-Open/blob/ab0eef01856e886f4f43f2e45c7ee32888bdb693/Test%20Excel/Program.cs#L134)
 
 ## Выводы
 Мои цели:
