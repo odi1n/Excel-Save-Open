@@ -17,15 +17,7 @@ namespace Test_Excel
         static void Main(string[] args)
         {
             string pathToExcelFile = @"data.xlsx";
-            List<Product> dataList = new List<Product>()
-            {
-                //new Product()
-                // {
-                //     ProductId = 2,
-                //     CategoryName = "wwww",
-                //     ProductName ="wwww",
-                //     Test = true,
-            };
+            List<Product> dataList = new List<Product>();
 
             for (int i = 0; i < 500000; i++)
             {
@@ -39,12 +31,12 @@ namespace Test_Excel
             }
 
             Console.WriteLine("start " +DateTime.Now);
-            EPPlus_.Save(dataList, "data.xlsx");
+            EPPlus_.Save(dataList, pathToExcelFile);
             Console.WriteLine("stop "+DateTime.Now);
 
 
             Console.WriteLine("start " + DateTime.Now);
-            EPPlus_.Open(dataList, "data.xlsx");
+            var open = EPPlus_.Open(pathToExcelFile);
             Console.WriteLine("stop " + DateTime.Now);
 
 
@@ -59,7 +51,7 @@ namespace Test_Excel
             //https://www.c-sharpcorner.com/article/linq-to-excel-in-action/
             //https://www.youtube.com/watch?v=t3BEUP0OTFM
 
-            public static List<Product> OpenTable2(string pathToExcelFile = "data.xlsx")
+            public static List<Product> Open(string pathToExcelFile = "data.xlsx")
             {
                 string sheetName = "data";
 
@@ -69,24 +61,20 @@ namespace Test_Excel
 
                 return artistAlbums.ToList();
             }
-
         }
 
         class ClosedXML_
         {
             //https://github.com/ClosedXML/ClosedXML/issues/619
-            //
 
-            public static void OpenTable2(string fileName = @"data.xlsx")
+            public static List<Product> Open(string fileName = @"data.xlsx")
             {
-                Console.WriteLine("start" + DateTime.Now);
                 var workbook = new XLWorkbook(fileName);
                 var worksheet = workbook.Worksheet(1);
-                // получим все строки в файле
                 var rows = worksheet.RangeUsed().RowsUsed(); // Skip header row
 
                 Console.WriteLine("start test" + DateTime.Now);
-                var test = rows.Select(w =>
+                var product = rows.Select(w =>
                 {
                     try { int tests = Convert.ToInt32(w.Cell(1).Value); }
                     catch { return null; }
@@ -101,25 +89,23 @@ namespace Test_Excel
                     };
 
                 }).ToList();
-                Console.WriteLine("stop test" + DateTime.Now);
+                return product;
             }
 
-            public static void OpenTable1(string fileName = @"data.xlsx")
+            public static List<Product> Open2(string fileName = @"data.xlsx")
             {
-                Console.WriteLine("start" + DateTime.Now);
                 var workbook = new XLWorkbook(fileName);
                 var worksheet = workbook.Worksheet(1);
-                // получим все строки в файле
                 var rows = worksheet.RangeUsed().RowsUsed(); // Skip header row
 
                 Console.WriteLine("start tessst" + DateTime.Now);
-                var tessst = new List<Product>();
+                var product = new List<Product>();
                 foreach (var row in rows)
                 {
                     try { int tests = Convert.ToInt32(row.Cell(1).Value); }
                     catch { continue; }
 
-                    tessst.Add(new Product()
+                    product.Add(new Product()
                     {
                         ProductId = Convert.ToInt32(row.Cell(1).Value),
                         CategoryName = Convert.ToString(row.Cell(2).Value),
@@ -127,13 +113,11 @@ namespace Test_Excel
                         Test = Convert.ToBoolean(row.Cell(4).Value),
 
                     });
-                    //string rowNumber = $"val1 {row.Cell(1).Value} val2 {row.Cell(2).Value} val3 {row.Cell(3).Value} val4 {row.Cell(4).Value}";
-                    //Console.WriteLine(rowNumber);
                 }
-                Console.WriteLine("stop tessst" + DateTime.Now);
+                return product;
             }
 
-            public static void SaveTable(Product[] dataList, string path = @"data.xlsx")
+            public static void Save(List<Product> dataList, string path = @"data.xlsx")
             {
                 using (var workbook = new XLWorkbook())
                 {     //creates the workbook
@@ -147,7 +131,7 @@ namespace Test_Excel
                 GC.Collect();
             }
 
-            public static void SaveTableStream(Product[] dataList, string path = @"data.xlsx")
+            public static void SaveStream(List<Product> dataList, string path = @"data.xlsx")
             {
                 using (var workbook = new XLWorkbook())
                 {     //creates the workbook
@@ -178,7 +162,7 @@ namespace Test_Excel
 
         class EPPlus_
         {
-            public static void Open(List<Product> dataList, string path = @"data.xlsx")
+            public static List<Product> Open(string path = @"data.xlsx")
             {
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -186,10 +170,11 @@ namespace Test_Excel
                 {
                     ExcelWorksheet sheet = excel.Workbook.Worksheets.FirstOrDefault();
                     var data = sheet.ImportExcelToList<Product>();
+                    return data;
                 }
             }
 
-            public static void Save(List<Product> dataList, string path = @"datass.xlsx")
+            public static void Save(List<Product> dataList, string path = @"data.xlsx")
             {
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -201,14 +186,14 @@ namespace Test_Excel
                 }
             }
         }
+    }
 
-        public class Product
-        {
-            public int ProductId { get; set; } = new Random().Next();
-            public string ProductName { get; set; } = "eqwe";
-            public string CategoryName { get; set; } = "dasdas";
-            public bool Test { get; set; } = false;
-        }
+    public class Product
+    {
+        public int ProductId { get; set; } = new Random().Next();
+        public string ProductName { get; set; } = "eqwe";
+        public string CategoryName { get; set; } = "dasdas";
+        public bool Test { get; set; } = false;
     }
 
     public static class ImportExcelReader
