@@ -1,6 +1,6 @@
 # Excel - save, open file .xlsx
 
-Пример сохранения и открытия файла .xlsx на двух библиотеках
+Пример сохранения/открытия файла .xlsx на нескольких библиотеках.
 
 ## EPPLus
 * [Сохранение файла](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L192)
