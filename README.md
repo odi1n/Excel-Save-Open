@@ -4,7 +4,7 @@
 
 ## EPPLus
 * [Сохранение файла](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L192)
-* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L181)
+* [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L181), [class импорт excel в list](https://github.com/odi1n/Excel-Save-Open/blob/51510fe4fb6d330e9566ba549693cd5aac11c465/Test%20Excel/Program.cs#L214)
 
 ## LinqToExcel
 * [Открытие файла](https://github.com/odi1n/Excel-Save-Open/blob/d7499043fd6225d0752b5d91bdf0c29261b4589a/Test%20Excel/Program.cs#L79)
