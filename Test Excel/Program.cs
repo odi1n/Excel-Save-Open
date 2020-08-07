@@ -1,9 +1,12 @@
 ﻿using ClosedXML.Excel;
 using LinqToExcel;
+using OfficeOpenXml;
+using OfficeOpenXml.Table;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,7 +27,7 @@ namespace Test_Excel
                 //     Test = true,
             };
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 500000; i++)
             {
                 dataList.Add(new Product()
                 {
@@ -35,11 +38,15 @@ namespace Test_Excel
                 });
             }
 
-            Console.WriteLine(DateTime.Now);
+            Console.WriteLine("start " +DateTime.Now);
+            EPPlus_.Save(dataList, "data.xlsx");
+            Console.WriteLine("stop "+DateTime.Now);
 
-            ClosedXML_.SaveTableStream(dataList.ToArray(), "datas.xlsx");
 
-            Console.WriteLine(DateTime.Now);
+            Console.WriteLine("start " + DateTime.Now);
+            EPPlus_.Open(dataList, "data.xlsx");
+            Console.WriteLine("stop " + DateTime.Now);
+
 
             Console.ReadKey();
         }
@@ -52,30 +59,6 @@ namespace Test_Excel
             //https://www.c-sharpcorner.com/article/linq-to-excel-in-action/
             //https://www.youtube.com/watch?v=t3BEUP0OTFM
 
-
-            public static List<Product> OpenTable1(string pathToExcelFile = @"data.xlsx")
-            {
-                ConnexionExcel ConxObject = new ConnexionExcel(pathToExcelFile);
-                var test = ConxObject.UrlConnexion.WorksheetNoHeader("data")
-                    .ToList()
-                    .Select(x =>
-                    {
-                        try { int tests = Convert.ToInt32(x.First().Value); }
-                        catch { return null; }
-
-                        return new Product()
-                        {
-                            ProductId = Convert.ToInt32(x[0].Value),
-                            CategoryName = Convert.ToString(x[1].Value),
-                            ProductName = Convert.ToString(x[2].Value),
-                            Test = x[3].Value.ToString() == "ИСТИНА" ? true : false,
-                        }; ;
-                    })
-                    .ToList();
-                test.RemoveAll(x => x == null);
-                return test;
-            }
-
             public static List<Product> OpenTable2(string pathToExcelFile = "data.xlsx")
             {
                 string sheetName = "data";
@@ -87,10 +70,6 @@ namespace Test_Excel
                 return artistAlbums.ToList();
             }
 
-            public static void SaveTable(string pathToExcelFile = "data.xlsx")
-            {
-                
-            }
         }
 
         class ClosedXML_
@@ -156,25 +135,35 @@ namespace Test_Excel
 
             public static void SaveTable(Product[] dataList, string path = @"data.xlsx")
             {
-                var workbook = new XLWorkbook();     //creates the workbook
-                var wsDetailedData = workbook.AddWorksheet("data"); //creates the worksheet with sheetname 'data'
-                wsDetailedData.Cell(1, 1).InsertTable(dataList); //inserts the data to cell A1 including default column name
-                workbook.SaveAs(path); //saves the workbook
-                workbook.Dispose();
+                using (var workbook = new XLWorkbook())
+                {     //creates the workbook
+                    var wsDetailedData = workbook.AddWorksheet("data"); //creates the worksheet with sheetname 'data'
+                    wsDetailedData.Cell(1, 1).InsertTable(dataList); //inserts the data to cell A1 including default column name
+                    workbook.SaveAs(path); //saves the workbook
+                    workbook.Dispose();
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
             }
 
             public static void SaveTableStream(Product[] dataList, string path = @"data.xlsx")
             {
-                var workbook = new XLWorkbook();     //creates the workbook
-                var wsDetailedData = workbook.AddWorksheet("data"); //creates the worksheet with sheetname 'data'
-                wsDetailedData.Cell(1, 1).InsertTable(dataList); //inserts the data to cell A1 including default column name
+                using (var workbook = new XLWorkbook())
+                {     //creates the workbook
+                    var wsDetailedData = workbook.AddWorksheet("data"); //creates the worksheet with sheetname 'data'
+                    wsDetailedData.Cell(1, 1).InsertTable(dataList); //inserts the data to cell A1 including default column name
 
-                using (MemoryStream memoryStream = SaveWorkbookToMemoryStream(workbook))
-                {
-                    File.WriteAllBytes(path, memoryStream.ToArray());
-                    memoryStream.Dispose();
+                    using (MemoryStream memoryStream = SaveWorkbookToMemoryStream(workbook))
+                    {
+                        File.WriteAllBytes(path, memoryStream.ToArray());
+                        memoryStream.Dispose();
+                    }
+                    workbook.Dispose();
                 }
-                workbook.Dispose();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
             }
 
             private static MemoryStream SaveWorkbookToMemoryStream(XLWorkbook workbook)
@@ -187,27 +176,28 @@ namespace Test_Excel
             }
         }
 
-        public class ConnexionExcel
+        class EPPlus_
         {
-            public string _pathExcelFile;
-            public ExcelQueryFactory _urlConnexion;
-            public ConnexionExcel(string path)
+            public static void Open(List<Product> dataList, string path = @"data.xlsx")
             {
-                this._pathExcelFile = path;
-                this._urlConnexion = new ExcelQueryFactory(_pathExcelFile);
-            }
-            public string PathExcelFile
-            {
-                get
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var excel = new ExcelPackage(new FileInfo(path)))
                 {
-                    return _pathExcelFile;
+                    ExcelWorksheet sheet = excel.Workbook.Worksheets.FirstOrDefault();
+                    var data = sheet.ImportExcelToList<Product>();
                 }
             }
-            public ExcelQueryFactory UrlConnexion
+
+            public static void Save(List<Product> dataList, string path = @"datass.xlsx")
             {
-                get
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var excel = new ExcelPackage(new FileInfo(path)))
                 {
-                    return _urlConnexion;
+                    ExcelWorksheet sheet = excel.Workbook.Worksheets.Add("date");
+                    var table = sheet.Cells["A1"].LoadFromCollection(dataList, true, TableStyles.None);
+                    excel.Save();
                 }
             }
         }
@@ -218,6 +208,127 @@ namespace Test_Excel
             public string ProductName { get; set; } = "eqwe";
             public string CategoryName { get; set; } = "dasdas";
             public bool Test { get; set; } = false;
+        }
+    }
+
+    public static class ImportExcelReader
+    {
+        public static List<T> ImportExcelToList<T>(this ExcelWorksheet worksheet) where T : new()
+        {
+            //DateTime Conversion
+            Func<double, DateTime> convertDateTime = new Func<double, DateTime>(excelDate =>
+            {
+                if (excelDate < 1)
+                {
+                    throw new ArgumentException("Excel dates cannot be smaller than 0.");
+                }
+
+                DateTime dateOfReference = new DateTime(1900, 1, 1);
+
+                if (excelDate > 60d)
+                {
+                    excelDate = excelDate - 2;
+                }
+                else
+                {
+                    excelDate = excelDate - 1;
+                }
+
+                return dateOfReference.AddDays(excelDate);
+            });
+
+            ExcelTable table = null;
+
+            if (worksheet.Tables.Any())
+            {
+                table = worksheet.Tables.FirstOrDefault();
+            }
+            else
+            {
+                table = worksheet.Tables.Add(worksheet.Dimension, "tbl" + worksheet.Name);
+
+                ExcelAddressBase newaddy = new ExcelAddressBase(table.Address.Start.Row, table.Address.Start.Column, table.Address.End.Row + 1, table.Address.End.Column);
+
+                //Edit the raw XML by searching for all references to the old address
+                table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(table.Address.ToString(), newaddy.ToString());
+            }
+
+            //Get the cells based on the table address
+            List<IGrouping<int, ExcelRangeBase>> groups = table.WorkSheet.Cells[table.Address.Start.Row, table.Address.Start.Column, table.Address.End.Row, table.Address.End.Column]
+                .GroupBy(cell => cell.Start.Row)
+                .ToList();
+
+            //Assume the second row represents column data types (big assumption!)
+            List<Type> types = groups.Skip(1).FirstOrDefault().Select(rcell => rcell.Value.GetType()).ToList();
+
+            //Get the properties of T
+            List<PropertyInfo> modelProperties = new T().GetType().GetProperties().ToList();
+
+            //Assume first row has the column names
+            var colnames = groups.FirstOrDefault()
+                .Select((hcell, idx) => new
+                {
+                    Name = hcell.Value.ToString(),
+                    index = idx
+                })
+                .Where(o => modelProperties.Select(p => p.Name).Contains(o.Name))
+                .ToList();
+
+            //Everything after the header is data
+            List<List<object>> rowvalues = groups
+                .Skip(1) //Exclude header
+                .Select(cg => cg.Select(c => c.Value).ToList()).ToList();
+
+            //Create the collection container
+            List<T> collection = new List<T>();
+            foreach (List<object> row in rowvalues)
+            {
+                T tnew = new T();
+                foreach (var colname in colnames)
+                {
+                    //This is the real wrinkle to using reflection - Excel stores all numbers as double including int
+                    object val = row[colname.index];
+                    Type type = types[colname.index];
+                    PropertyInfo prop = modelProperties.FirstOrDefault(p => p.Name == colname.Name);
+
+                    //If it is numeric it is a double since that is how excel stores all numbers
+                    if (type == typeof(double))
+                    {
+                        //Unbox it
+                        double unboxedVal = (double)val;
+
+                        //FAR FROM A COMPLETE LIST!!!
+                        if (prop.PropertyType == typeof(int))
+                        {
+                            prop.SetValue(tnew, (int)unboxedVal);
+                        }
+                        else if (prop.PropertyType == typeof(double))
+                        {
+                            prop.SetValue(tnew, unboxedVal);
+                        }
+                        else if (prop.PropertyType == typeof(DateTime))
+                        {
+                            prop.SetValue(tnew, convertDateTime(unboxedVal));
+                        }
+                        else if (prop.PropertyType == typeof(string))
+                        {
+                            prop.SetValue(tnew, val.ToString());
+                        }
+                        else
+                        {
+                            throw new NotImplementedException(string.Format("Type '{0}' not implemented yet!", prop.PropertyType.Name));
+                        }
+                    }
+                    else
+                    {
+                        //Its a string
+                        prop.SetValue(tnew, val);
+                    }
+                }
+                collection.Add(tnew);
+            }
+
+            return collection;
         }
     }
 }
